@@ -1,7 +1,4 @@
-// tarea_santiago_padron_completo.cpp
-// Version extendida del sistema de gestion hospitalaria
-// Se han añadido utilidades y funciones faltantes solicitadas
-// Reglas: sin acentos en los comentarios, uso de endl en lugar de '\n'
+
 
 #include <iostream>
 #include <cstring>
