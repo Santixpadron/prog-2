@@ -1,4 +1,5 @@
 #include <iostream>
+#include <limits>
 #include "hospital/Hospital.hpp"
 #include "persistencia/GestorArchivos.hpp"
 #include "pacientes/operacionesPacientes.hpp"
@@ -8,7 +9,9 @@
 
 using namespace std;
 using namespace Gestor;
-
+using namespace OperPac;
+using namespace OperDoc;
+using namespace OperCitas;
 
 void pausar() { cout << "\nPresione ENTER para continuar..."; cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); }
 
