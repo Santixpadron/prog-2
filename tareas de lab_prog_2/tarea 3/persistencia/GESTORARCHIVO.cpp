@@ -1,10 +1,78 @@
 #include "GestorArchivos.hpp"
-ArchivoHeader h = leerHeader(ARCHIVO_PACIENTES);
-PacienteRecord copy = p;
-copy.id = h.proximoID;
-ofstream f(ARCHIVO_PACIENTES, ios::binary | ios::app);
+#include <fstream>
+#include <cstdio>
+#include <iostream>
+#include <algorithm>
+
+
+using namespace std;
+
+
+// archivos
+static const char* ARCHIVO_PACIENTES = "pacientes.bin";
+static const char* ARCHIVO_DOCTORES = "doctores.bin";
+static const char* ARCHIVO_CITAS = "citas.bin";
+static const char* ARCHIVO_HISTORIAL = "historiales.bin";
+static const char* ARCHIVO_HOSPITAL = "hospital.bin";
+
+
+const int VERSION_ACTUAL = 1;
+
+
+namespace Gestor {
+
+
+bool inicializarArchivo(const char* nombreArchivo, int proximoID) {
+ofstream out(nombreArchivo, ios::binary | ios::trunc);
+if (!out.is_open()) return false;
+ArchivoHeader h; h.cantidadRegistros = 0; h.proximoID = proximoID; h.registrosActivos = 0; h.version = VERSION_ACTUAL;
+out.write((char*)&h, sizeof(h));
+out.close();
+return true;
+}
+
+
+ArchivoHeader leerHeader(const char* nombreArchivo) {
+ArchivoHeader h; memset(&h,0,sizeof(h));
+ifstream in(nombreArchivo, ios::binary);
+if (!in.is_open()) return h;
+in.read((char*)&h, sizeof(h));
+in.close();
+return h;
+}
+
+
+bool actualizarHeader(const char* nombreArchivo, const ArchivoHeader& h) {
+fstream f(nombreArchivo, ios::binary | ios::in | ios::out);
 if (!f.is_open()) return false;
-f.write((char*)&copy, sizeof(PacienteRecord));
+f.seekp(0);
+f.write((char*)&h, sizeof(h));
+f.close();
+return true;
+}
+
+
+bool verificarArchivo(const char* nombreArchivo) {
+ifstream in(nombreArchivo, ios::binary);
+if (!in.is_open()) return false;
+in.seekg(0, ios::end);
+long tam = in.tellg();
+in.close();
+return tam >= (long)sizeof(ArchivoHeader);
+}
+
+
+long calcularPosicion(int indice, size_t tamRegistro) {
+return (long)(sizeof(ArchivoHeader) + indice * tamRegistro);
+}
+bool agregarPaciente(const PacienteRecord& p) {
+
+// ---------- PACIENTES ----------
+ArchivoHeader h = leerHeader(ARCHIVO_PACIENTES);
+fstream f(ARCHIVO_PACIENTES, ios::binary | ios::in | ios::out);
+if (!f.is_open()) return false;
+f.seekp(calcularPosicion(h.cantidadRegistros, sizeof(PacienteRecord)));
+f.write((char*)&p, sizeof(PacienteRecord));
 f.close();
 h.cantidadRegistros++; h.registrosActivos++; h.proximoID++;
 actualizarHeader(ARCHIVO_PACIENTES, h);
@@ -54,6 +122,34 @@ if (!p.eliminado && strcmp(p.cedula, cedula) == 0) return p;
 }
 return vacio;
 }
+// ---------- DOCTORES ----------
+bool agregarDoctor(const DoctorRecord& d) {
+ArchivoHeader h = leerHeader(ARCHIVO_DOCTORES);
+DoctorRecord copy = d; copy.id = h.proximoID;
+ofstream f(ARCHIVO_DOCTORES, ios::binary | ios::app);
+if (!f.is_open()) return false;
+f.write((char*)&copy, sizeof(DoctorRecord)); f.close();
+h.cantidadRegistros++; h.registrosActivos++; h.proximoID++; actualizarHeader(ARCHIVO_DOCTORES,h);
+return true;
+}
+
+
+bool guardarDoctor(const DoctorRecord& d, int indice) {
+if (indice < 0) return false;
+fstream f(ARCHIVO_DOCTORES, ios::binary | ios::in | ios::out);
+if (!f.is_open()) return false;
+f.seekp(calcularPosicion(indice, sizeof(DoctorRecord)));
+f.write((char*)&d, sizeof(DoctorRecord)); f.close();
+return true;
+}
+
+
+DoctorRecord leerDoctorPorIndice(int indice) {
+DoctorRecord d; memset(&d,0,sizeof(d));
+ifstream f(ARCHIVO_DOCTORES, ios::binary);
+if (!f.is_open()) return d;
+long pos = calcularPosicion(indice, sizeof(DoctorRecord));
+f.seekg(pos); f.read((char*)&d, sizeof(DoctorRecord)); f.close();
 return d;
 }
 
@@ -110,6 +206,7 @@ if (c.id == id && !c.eliminado) return i;
 return -1;
 }
 // ---------- HISTORIAL ----------
+bool agregarHistorial(const HistorialRecord& hrec) {
 ArchivoHeader h = leerHeader(ARCHIVO_HISTORIAL);
 HistorialRecord copy = hrec; copy.idConsulta = h.proximoID;
 ofstream f(ARCHIVO_HISTORIAL, ios::binary | ios::app);
@@ -173,6 +270,3 @@ if (f.peek() != EOF) f.read((char*)&h, sizeof(HospitalRecord));
 f.close();
 return h;
 }
-
-
-} // namespace Gestor
