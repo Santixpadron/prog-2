@@ -1,5 +1,6 @@
 #include "operacionesPacientes.hpp"
 #include "../persistencia/GestorArchivos.hpp"
+#include "../utilidades/validaciones.hpp"
 #include <iostream>
 
 

@@ -25,3 +25,5 @@ HistorialMedico();
 const HistorialRecord& toRecord() const;
 void fromRecord(const HistorialRecord& rec);
 };
+
+#endif // HISTORIAL_HPP

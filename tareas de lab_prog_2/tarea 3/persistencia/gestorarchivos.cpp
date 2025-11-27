@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <iostream>
 #include <algorithm>
+#include <cstring>
 
 
 using namespace std;
@@ -269,4 +270,5 @@ f.seekg(sizeof(ArchivoHeader));
 if (f.peek() != EOF) f.read((char*)&h, sizeof(HospitalRecord));
 f.close();
 return h;
+}
 }

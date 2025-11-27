@@ -1,6 +1,9 @@
-#include "operacionesCitas.hpp"
-#include "../utilidades/Validaciones.hpp"
+#include "operacionescitas.hpp"
+#include "../persistencia/gestorarchivos.hpp"
+#include "../utilidades/validaciones.hpp"
 #include <iostream>
+#include <cstring>
+#include <algorithm>
 
 
 using namespace std;
@@ -9,6 +12,7 @@ using namespace Util;
 
 
 bool verificarDisponibilidad(int idDoctor, const char* fecha, const char* hora) {
+        
 ArchivoHeader h = Gestor::leerHeader("citas.bin");
 for (int i=0;i<h.cantidadRegistros;i++) {
 CitaRecord cr = Gestor::leerCitaPorIndice(i);

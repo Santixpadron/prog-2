@@ -11,3 +11,4 @@ bool agendarCita(Hospital& h);
 bool cancelarCita(int id);
 bool atenderCita(Hospital& h, int id);
 }
+#endif // OPERACIONES_CITAS_HPP
